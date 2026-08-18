@@ -8,7 +8,10 @@ requires-python = ">=3.14"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
-    # "frappe~=16.0.0" # Installed and managed by bench.
+    "pdfplumber>=0.10.0",
+    "pypdfium2>=4.0.0",
+    "pillow>=10.0.0",
+    "beautifulsoup4>=4.12.0"
 ]
 
 [build-system]

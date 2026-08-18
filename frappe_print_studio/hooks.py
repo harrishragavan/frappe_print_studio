@@ -251,8 +251,21 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+website_route_rules = [
+	{"from_route": "/print_studio", "to_route": "frappe_print_studio"},
+	{"from_route": "/print_studio/<path:app_path>", "to_route": "frappe_print_studio"},
+]
+
+
 # Translation
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
+
+fixtures = [
+	{
+		"dt": "Role",
+		"filters": [["name", "in", ["Print Studio Manager"]]]
+	}
+]
 

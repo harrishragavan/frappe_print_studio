@@ -1,0 +1,27 @@
+<!doctype html>
+<html class="h-full bg-slate-50" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frappe Print Studio</title>
+    
+    <!-- Vite Dev Server injection if Developer Mode is active -->
+    {% if frappe.conf.developer_mode %}
+      <script type="module" src="http://localhost:5173/@vite/client"></script>
+      <script type="module" src="http://localhost:5173/src/main.js"></script>
+    {% else %}
+      <!-- Production Built Assets -->
+      <!-- These get injected by the build compiler/assets manager -->
+    {% endif %}
+  </head>
+  <body class="h-full overflow-hidden antialiased">
+    <div id="app" class="h-full"></div>
+    
+    <!-- Injection of Boot data -->
+    <script>
+      {% for key in boot %}
+      window["{{ key }}"] = {{ boot[key] | tojson }};
+      {% endfor %}
+    </script>
+  </body>
+</html>

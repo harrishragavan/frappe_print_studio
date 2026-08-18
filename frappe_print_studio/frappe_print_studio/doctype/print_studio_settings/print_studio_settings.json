@@ -1,0 +1,59 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-08 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "llm_provider",
+  "api_key",
+  "api_base",
+  "model_name"
+ ],
+ "fields": [
+  {
+   "default": "Mock",
+   "fieldname": "llm_provider",
+   "fieldtype": "Select",
+   "label": "LLM Provider",
+   "options": "Mock\nGemini\nOpenAI\nDeepSeek\nOllama",
+   "reqd": 1
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key",
+   "depends_on": "eval:doc.llm_provider != 'Mock' && doc.llm_provider != 'Ollama';"
+  },
+  {
+   "fieldname": "api_base",
+   "fieldtype": "Data",
+   "label": "API Base URL (Optional)",
+   "description": "Provide custom API base URL for self-hosted or proxy services."
+  },
+  {
+   "fieldname": "model_name",
+   "fieldtype": "Data",
+   "label": "Model Name",
+   "description": "e.g., gemini-3.5-flash, gpt-4o-mini, deepseek-chat"
+  }
+ ],
+ "issingle": 1,
+ "modified": "2026-08-08 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Frappe Print Studio",
+ "name": "Print Studio Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ]
+}

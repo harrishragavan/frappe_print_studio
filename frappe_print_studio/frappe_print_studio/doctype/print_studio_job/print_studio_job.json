@@ -1,0 +1,102 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-08 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "document_file",
+  "target_doctype",
+  "print_format",
+  "status",
+  "error_message",
+  "intermediate_schema",
+  "generated_html",
+  "generated_css",
+  "generated_jinja",
+  "field_mappings"
+ ],
+ "fields": [
+  {
+   "fieldname": "document_file",
+   "fieldtype": "Link",
+   "label": "Document File",
+   "options": "File",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "target_doctype",
+   "fieldtype": "Link",
+   "label": "Target DocType",
+   "options": "DocType",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "print_format",
+   "fieldtype": "Link",
+   "label": "Print Format",
+   "options": "Print Format"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nProcessing\nCompleted\nFailed",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Small Text",
+   "label": "Error Message"
+  },
+  {
+   "fieldname": "intermediate_schema",
+   "fieldtype": "Code",
+   "label": "Intermediate Schema",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "generated_html",
+   "fieldtype": "Code",
+   "label": "Generated HTML",
+   "options": "HTML"
+  },
+  {
+   "fieldname": "generated_css",
+   "fieldtype": "Code",
+   "label": "Generated CSS",
+   "options": "CSS"
+  },
+  {
+   "fieldname": "generated_jinja",
+   "fieldtype": "Code",
+   "label": "Generated Jinja",
+   "options": "HTML"
+  },
+  {
+   "fieldname": "field_mappings",
+   "fieldtype": "Table",
+   "label": "Field Mappings",
+   "options": "Print Studio Field Mapping"
+  }
+ ],
+ "issingle": 0,
+ "modified": "2026-08-08 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Frappe Print Studio",
+ "name": "Print Studio Job",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ]
+}

@@ -1,0 +1,57 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-08 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "detected_label",
+  "mapped_fieldname",
+  "confidence",
+  "mapping_method",
+  "is_override"
+ ],
+ "fields": [
+  {
+   "fieldname": "detected_label",
+   "fieldtype": "Data",
+   "label": "Detected Label",
+   "in_list_view": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "mapped_fieldname",
+   "fieldtype": "Data",
+   "label": "Mapped Fieldname",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "confidence",
+   "fieldtype": "Percent",
+   "label": "Confidence",
+   "in_list_view": 1
+  },
+  {
+   "default": "Exact",
+   "fieldname": "mapping_method",
+   "fieldtype": "Select",
+   "label": "Mapping Method",
+   "options": "Exact\nFuzzy\nSemantic\nManual\nSynonym\nUnmapped",
+   "in_list_view": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_override",
+   "fieldtype": "Check",
+   "label": "Is Override",
+   "in_list_view": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2026-08-08 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Frappe Print Studio",
+ "name": "Print Studio Field Mapping",
+ "owner": "Administrator",
+ "permissions": []
+}
