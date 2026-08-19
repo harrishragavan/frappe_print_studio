@@ -86,6 +86,19 @@
       </div>
 
       <button 
+        v-if="selectedJobName"
+        @click="$emit('trigger-spotlight')"
+        class="flex items-center space-x-1.5 bg-studio-elevated hover:bg-studio-secondary text-studio-textSecondary hover:text-studio-text border border-studio-border rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider select-none shadow-sm transition"
+        title="Open Command Palette (Cmd+K)"
+      >
+        <svg class="h-3 w-3 text-studio-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span>Search</span>
+        <span class="text-[8px] opacity-70 bg-studio-secondary px-1 py-0.2 rounded border border-studio-border font-mono">⌘K</span>
+      </button>
+
+      <button 
         @click="$emit('toggle-settings')"
         class="flex items-center space-x-1.5 bg-studio-elevated hover:bg-studio-secondary text-studio-textSecondary hover:text-studio-text border border-studio-border rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider select-none shadow-sm transition"
       >
@@ -115,5 +128,5 @@ defineProps<{
   bootUser: string
 }>()
 
-defineEmits(['go-home', 'toggle-settings', 'set-view-mode', 'deploy', 'undo', 'redo'])
+defineEmits(['go-home', 'toggle-settings', 'set-view-mode', 'deploy', 'undo', 'redo', 'trigger-spotlight'])
 </script>

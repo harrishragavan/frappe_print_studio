@@ -33,9 +33,10 @@
   },
   {
    "fieldname": "model_name",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Model Name",
-   "description": "e.g., gemini-3.5-flash, gpt-4o-mini, deepseek-chat"
+   "options": "mock-model\ngemini-3.5-flash\ngemini-3.6-flash\ngemini-flash-latest\ngpt-4o-mini\ngpt-4o\ngpt-3.5-turbo\ndeepseek-chat\ndeepseek-coder\ndeepseek-v4-flash\nllama3\nmistral\ncodellama",
+   "description": "Select the specific model to use under the chosen LLM provider."
   }
  ],
  "issingle": 1,

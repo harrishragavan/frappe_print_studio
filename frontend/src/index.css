@@ -1,4 +1,5 @@
 @import 'frappe-ui/style.css';
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;755;800&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Outfit:wght@300;400;500;600;700;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,8 +8,9 @@
 /* disable webkit tap highlight color */
 body {
   -webkit-tap-highlight-color: transparent;
-  background-color: #111315;
-  color: #F2F3F5;
+  background-color: #EFECE6;
+  color: #2A2B2A;
+  font-family: 'Outfit', sans-serif;
 }
 
 /* Custom workbench scrollbars */
@@ -46,5 +48,65 @@ body {
 /* Bounding box hover animations */
 .box-hover-transition {
   transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tactile Drafting Board Grid */
+.drafting-board-grid {
+  background-color: #EFECE6;
+  background-image: radial-gradient(#8B867F 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Marching Ants Border Animation */
+.marching-ants {
+  background-image: 
+    linear-gradient(90deg, #F0533A 50%, transparent 50%), 
+    linear-gradient(90deg, #F0533A 50%, transparent 50%), 
+    linear-gradient(0deg, #F0533A 50%, transparent 50%), 
+    linear-gradient(0deg, #F0533A 50%, transparent 50%);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: 10px 1.5px, 10px 1.5px, 1.5px 10px, 1.5px 10px;
+  background-position: 0 0, 20px 100%, 0 20px, 100% 0;
+  animation: border-dance 0.4s linear infinite;
+}
+@keyframes border-dance {
+  0% {
+    background-position: 0px 0px, 0px 100%, 0px 0px, 100% 0px;
+  }
+  100% {
+    background-position: 10px 0px, -10px 100%, 0px -10px, 100% 10px;
+  }
+}
+
+/* Blueprint laser scanner animations */
+@keyframes scan-beam {
+  0% { top: 0%; opacity: 0.3; }
+  50% { top: 100%; opacity: 1; }
+  100% { top: 0%; opacity: 0.3; }
+}
+.animate-scan-beam {
+  animation: scan-beam 2.5s ease-in-out infinite;
+}
+
+@keyframes flash-region {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.6; }
+}
+.animate-flash-region {
+  animation: flash-region 1.8s infinite;
+}
+.animate-flash-region-delayed {
+  animation: flash-region 2.2s infinite 0.5s;
+}
+.animate-flash-region-more-delayed {
+  animation: flash-region 1.5s infinite 1s;
+}
+
+/* Typography Utility Overrides */
+.font-serif {
+  font-family: 'Merriweather', Georgia, serif !important;
+}
+.font-mono {
+  font-family: 'JetBrains Mono', monospace !important;
 }
 

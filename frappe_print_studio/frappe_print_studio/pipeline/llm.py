@@ -368,6 +368,46 @@ body {
 			"css": mock_css
 		})
 
+class FallbackProvider(LLMProvider):
+	def __init__(self, primary_provider: LLMProvider):
+		self.primary_provider = primary_provider
+
+	def generate(self, prompt: str, system_instruction: str = None, attachments: list = None) -> str:
+		try:
+			logger.info(f"Attempting generation with primary provider: {self.primary_provider.__class__.__name__}")
+			return self.primary_provider.generate(prompt, system_instruction, attachments)
+		except Exception as e:
+			logger.warning(f"Primary provider {self.primary_provider.__class__.__name__} failed: {e}. Falling back to next available provider...")
+			
+			# 1. Fallback to Gemini if env variable is set
+			if os.environ.get("GEMINI_API_KEY") and not isinstance(self.primary_provider, GeminiProvider):
+				try:
+					fallback_gemini = GeminiProvider(
+						api_key=os.environ.get("GEMINI_API_KEY"),
+						model_name=os.environ.get("GEMINI_MODEL") or "gemini-3.5-flash"
+					)
+					logger.info("Generating with Gemini fallback provider...")
+					return fallback_gemini.generate(prompt, system_instruction, attachments)
+				except Exception as gemini_err:
+					logger.error(f"Gemini fallback provider also failed: {gemini_err}")
+
+			# 2. Fallback to OpenAI if env variable is set
+			if os.environ.get("OPENAI_API_KEY") and not isinstance(self.primary_provider, OpenAIProvider):
+				try:
+					fallback_openai = OpenAIProvider(
+						api_key=os.environ.get("OPENAI_API_KEY"),
+						model_name=os.environ.get("OPENAI_MODEL") or "gpt-4o-mini"
+					)
+					logger.info("Generating with OpenAI fallback provider...")
+					return fallback_openai.generate(prompt, system_instruction, attachments)
+				except Exception as openai_err:
+					logger.error(f"OpenAI fallback provider also failed: {openai_err}")
+
+			# 3. Fallback to MockProvider to ensure UI never hangs or errors
+			logger.warning("All configured providers failed. Falling back to MockProvider.")
+			mock = MockProvider()
+			return mock.generate(prompt, system_instruction, attachments)
+
 def get_active_provider() -> LLMProvider:
 	"""Fetch credentials from Print Studio Settings DocType or fallback to env variables."""
 	if frappe.flags.in_test:
@@ -406,11 +446,16 @@ def get_active_provider() -> LLMProvider:
 			model_name = os.environ.get("DEEPSEEK_MODEL") or "deepseek-chat"
 
 	# Instantiate provider
+	primary = None
 	if provider_type == "Gemini" and api_key:
-		return GeminiProvider(api_key, api_base, model_name)
+		primary = GeminiProvider(api_key, api_base, model_name)
 	elif provider_type == "OpenAI" and api_key:
-		return OpenAIProvider(api_key, api_base, model_name)
+		primary = OpenAIProvider(api_key, api_base, model_name)
 	elif provider_type == "DeepSeek" and api_key:
-		return DeepSeekProvider(api_key, api_base, model_name)
+		primary = DeepSeekProvider(api_key, api_base, model_name)
 	else:
-		return MockProvider()
+		primary = MockProvider()
+
+	if isinstance(primary, MockProvider):
+		return primary
+	return FallbackProvider(primary)

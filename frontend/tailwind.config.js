@@ -13,19 +13,19 @@ export default {
     extend: {
       colors: {
         studio: {
-          bg: '#111315',
-          panel: '#17191C',
-          elevated: '#1D2024',
-          secondary: '#202328',
-          border: '#2A2E33',
-          borderStrong: '#353A41',
-          text: '#F2F3F5',
-          textSecondary: '#9299A3',
-          textMuted: '#646B75',
-          paper: '#F8F7F3',
-          paperSecondary: '#F1F0EB',
-          accent: '#38C8B0',
-          accentHover: '#4DD7C1',
+          bg: '#EFECE6',
+          panel: '#FFFFFF',
+          elevated: '#F8F6F2',
+          secondary: '#F1EDE7',
+          border: '#D1CDC7',
+          borderStrong: '#AFA99E',
+          text: '#2A2B2A',
+          textSecondary: '#4B5E65',
+          textMuted: '#8B867F',
+          paper: '#FFFFFF',
+          paperSecondary: '#FAF9F6',
+          accent: '#F0533A',
+          accentHover: '#F2735E',
         }
       }
     },

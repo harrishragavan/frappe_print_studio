@@ -2,7 +2,7 @@
   <div class="w-full h-full bg-studio-panel border-l border-studio-border flex flex-col select-none overflow-hidden">
     <!-- Header -->
     <div class="p-4 border-b border-studio-border flex justify-between items-center shrink-0">
-      <h3 class="text-[10px] font-black text-studio-textSecondary uppercase tracking-widest">Inspector</h3>
+      <h3 class="text-[10px] font-black text-studio-textSecondary uppercase tracking-widest font-serif">Inspector</h3>
       <span class="text-[9px] font-mono text-studio-accent uppercase font-bold">Properties</span>
     </div>
 
@@ -12,7 +12,7 @@
       <div v-if="!selectedRegion" class="space-y-4">
         <div class="space-y-1">
           <p class="text-[9px] text-studio-textMuted font-bold uppercase tracking-widest">Document Scope</p>
-          <h4 class="text-sm font-black text-studio-text">Global Properties</h4>
+          <h4 class="text-sm font-black text-studio-text font-serif">Global Properties</h4>
         </div>
         
         <div class="h-[1px] bg-studio-border"></div>
@@ -61,7 +61,7 @@
               {{ selectedRegion.region_type || 'REGION' }}
             </span>
           </div>
-          <h4 class="text-xs font-black text-studio-text capitalize mt-1">{{ formatRegionName(selectedRegion) }}</h4>
+          <h4 class="text-xs font-black text-studio-text capitalize mt-1 font-serif">{{ formatRegionName(selectedRegion) }}</h4>
         </div>
 
         <div class="h-[1px] bg-studio-border"></div>

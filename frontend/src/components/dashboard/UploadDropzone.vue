@@ -5,8 +5,8 @@
     @drop.prevent="onDrop"
     @click="$refs.fileInput?.click()"
     :class="[
-      'relative w-full rounded-[20px] p-6 flex flex-col justify-between cursor-pointer transition duration-200 shadow-sm overflow-hidden select-none border min-h-[190px]',
-      modelValue ? 'bg-studio-elevated text-studio-text border-studio-accent/30' : 'bg-studio-panel border-studio-border hover:border-studio-accent/40 text-studio-textSecondary'
+      'relative w-full rounded-2xl p-6 flex flex-col justify-between cursor-pointer transition duration-200 shadow-sm overflow-hidden select-none border-2 min-h-[190px]',
+      modelValue ? 'bg-studio-elevated text-studio-text border-studio-accent/30' : 'bg-studio-panel border-dashed border-studio-border hover:border-studio-accent/50 text-studio-textSecondary'
     ]"
   >
     <input 
@@ -19,12 +19,12 @@
 
     <!-- Empty State: Upload Action Dropzone -->
     <div v-if="!modelValue" class="flex-1 flex flex-col items-center justify-center text-center p-4">
-      <div class="p-3 bg-studio-secondary rounded-full mb-3 text-studio-accent border border-studio-border">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+      <div class="p-3.5 bg-studio-secondary rounded-xl mb-3 text-studio-textSecondary border border-studio-border hover:text-studio-accent transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-studio-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       </div>
-      <p class="text-xs font-bold text-studio-text">Drag or click to upload reference sample</p>
+      <p class="text-xs font-bold text-studio-text">Drag or click to upload layout reference</p>
       <p class="text-[9px] text-studio-textMuted mt-1.5 uppercase tracking-wider font-semibold">PDF or Image file ≤ 10MB</p>
     </div>
 

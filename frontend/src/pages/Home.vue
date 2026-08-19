@@ -14,6 +14,7 @@
       @deploy="deployJob"
       @undo="handleUndo"
       @redo="handleRedo"
+      @trigger-spotlight="showSpotlightModal = true"
     />
 
     <!-- Main Workspace body -->
@@ -60,21 +61,8 @@
               :doc-height="docHeight"
               @select-region="selectRegion"
               @hover-region="hoverRegion"
-            />
-
-            <!-- Bottom AI command bar -->
-            <AICommandBar 
-              v-model="chatInput"
-              :chat-attachments="chatAttachments"
-              :is-uploading-attachment="isUploadingAttachment"
-              :is-refining="isRefining"
-              :selected-region-id="selectedRegionId"
-              :spatial-regions="spatialRegions"
-              @select-suggestion="chatInput = $event"
-              @remove-attachment="removeAttachment"
-              @upload-attachment="handleAttachmentUpload"
-              @open-site-files="openSiteFilesSelector"
-              @refine="refineJob"
+              @apply-pill="applyFloatingPill"
+              @trigger-prompt="triggerSpotlightForRegion"
             />
           </div>
 
@@ -105,6 +93,86 @@
       :settings="settingsForm"
       @save="saveSettings"
     />
+
+    <!-- Spotlight Command Palette Modal Dialog -->
+    <Dialog
+      v-model="showSpotlightModal"
+      :options="{
+        title: 'Typesetter\'s Command Palette',
+        size: 'md'
+      }"
+    >
+      <template #body>
+        <div class="space-y-4 text-studio-text p-4 bg-studio-panel rounded-2xl flex flex-col max-h-[480px] overflow-hidden select-none">
+          <!-- Selection info bar -->
+          <div class="flex items-center justify-between bg-studio-secondary px-3 py-2 rounded-xl border border-studio-border text-xs">
+            <span class="text-studio-textSecondary font-semibold">Active Focus:</span>
+            <span v-if="selectedRegionId" class="font-mono text-studio-accent font-bold uppercase">
+              Region: {{ spatialRegions.find(r => r.id === selectedRegionId)?.region_type || selectedRegionId }}
+            </span>
+            <span v-else class="font-mono text-studio-textSecondary uppercase">
+              Global Document
+            </span>
+          </div>
+
+          <!-- Prompt Command Input -->
+          <div class="relative">
+            <input 
+              type="text" 
+              v-model="chatInput"
+              @keyup.enter="submitSpotlightPrompt"
+              placeholder="Ask the Typesetting Apprentice to refine layout... (e.g. Add signed-by signature line)" 
+              class="w-full bg-studio-bg border border-studio-border rounded-xl pl-4 pr-16 py-3 text-xs focus:outline-none focus:border-studio-accent"
+              ref="spotlightInputRef"
+            />
+            <button
+              @click="submitSpotlightPrompt"
+              :disabled="isRefining || !chatInput.trim()"
+              class="absolute right-2 top-2 px-3.5 py-1.5 bg-studio-accent text-studio-bg hover:bg-studio-accentHover disabled:bg-studio-border disabled:text-studio-textMuted rounded-lg text-[10px] font-bold uppercase transition"
+            >
+              Run
+            </button>
+          </div>
+
+          <!-- Command Modifiers list -->
+          <div class="space-y-1">
+            <p class="text-[9px] uppercase tracking-widest text-studio-textMuted font-bold">Quick Command Modifiers</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button 
+                v-for="cmd in spotlightCommands" 
+                :key="cmd.text"
+                @click="applySpotlightCommand(cmd.text)"
+                class="flex items-center justify-between p-2.5 bg-studio-bg hover:bg-studio-secondary border border-studio-border rounded-xl text-left transition group"
+              >
+                <div>
+                  <p class="text-xs font-bold text-studio-textSecondary group-hover:text-studio-text leading-tight">{{ cmd.title }}</p>
+                  <p class="text-[9px] text-studio-textMuted mt-0.5">{{ cmd.desc }}</p>
+                </div>
+                <span class="text-[9px] font-mono text-studio-accent bg-studio-secondary px-1.5 py-0.5 rounded border border-studio-border group-hover:bg-studio-accent group-hover:text-studio-bg transition">
+                  {{ cmd.shortcut }}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Attachments Row in Spotlight -->
+          <div class="pt-2 border-t border-studio-border flex justify-between items-center text-xs">
+            <div class="flex items-center space-x-2 text-studio-textSecondary">
+              <svg class="h-4 w-4 text-studio-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+              <span class="font-bold">{{ chatAttachments.length }} references attached</span>
+            </div>
+            <button 
+              @click="openSiteFilesSelector"
+              class="px-2.5 py-1 hover:bg-studio-secondary border border-studio-border rounded-lg text-[9px] font-bold uppercase tracking-wider text-studio-textSecondary transition"
+            >
+              Add Reference
+            </button>
+          </div>
+        </div>
+      </template>
+    </Dialog>
 
     <!-- Site Files Selector Modal Dialog -->
     <Dialog
@@ -179,7 +247,6 @@ import LLMSettingsModal from '../components/shell/LLMSettingsModal.vue'
 import StudioDashboard from '../components/dashboard/StudioDashboard.vue'
 import LayersPanel from '../components/canvas/LayersPanel.vue'
 import InspectorPanel from '../components/canvas/InspectorPanel.vue'
-import AICommandBar from '../components/canvas/AICommandBar.vue'
 import DocumentCanvas from '../components/canvas/DocumentCanvas.vue'
 import CodeWorkspace from '../components/code/CodeWorkspace.vue'
 
@@ -440,10 +507,86 @@ const loadActiveSettings = () => {
   getSettingsResource.fetch()
 }
 
+// Spotlight & keyboard states
+const showSpotlightModal = ref(false)
+const spotlightInputRef = ref<HTMLInputElement | null>(null)
+
+const spotlightCommands = computed(() => {
+  if (selectedRegionId.value) {
+    const region = spatialRegions.value.find(r => r.id === selectedRegionId.value)
+    if (region && region.region_type === 'header') {
+      return [
+        { title: 'Align Header Left', desc: 'Move all header elements to the left margin', text: 'Align header left', shortcut: '/left' },
+        { title: 'Increase Logo Spacing', desc: 'Add more vertical space after logo/branding', text: 'Increase logo spacing', shortcut: '/space' },
+        { title: 'Add Header Line', desc: 'Draw a subtle horizontal border below the header', text: 'Add faint border below header', shortcut: '/line' },
+        { title: 'Make Header Bold', desc: 'Increase text weight of main header titles', text: 'Make header bold', shortcut: '/bold' }
+      ]
+    } else if (region && region.region_type === 'table') {
+      return [
+        { title: 'Striped Grid Rows', desc: 'Add alternate row light-slate backgrounds', text: 'Add striped background to rows', shortcut: '/stripe' },
+        { title: 'Add Grid Borders', desc: 'Draw thin, crisp grid lines around columns', text: 'Add border to table grid', shortcut: '/border' },
+        { title: 'Align Columns', desc: 'Left-align labels, right-align amount columns', text: 'Align table columns properly', shortcut: '/align' },
+        { title: 'Remove Rates', desc: 'Hide item unit rates and display quantities only', text: 'Remove item rates', shortcut: '/norate' }
+      ]
+    } else if (region && region.region_type === 'totals') {
+      return [
+        { title: 'Highlight Grand Total', desc: 'Enlarge total text and color it Vermilion', text: 'Highlight grand total text in vermilion', shortcut: '/total' },
+        { title: 'Right Align Labels', desc: 'Push summary calculations to the right margin', text: 'Move total label to right', shortcut: '/right' },
+        { title: 'Compact Margins', desc: 'Minimize spacing to pull totals upward', text: 'Compact totals margins', shortcut: '/tight' },
+        { title: 'Add Double Line', desc: 'Draw classic accounting double borders below total', text: 'Add double line below grand total', shortcut: '/double' }
+      ]
+    }
+  }
+  return [
+    { title: 'Add Page Border', desc: 'Apply a thin drafting-mat border around pages', text: 'Add elegant page border', shortcut: '/border' },
+    { title: 'Compact Layout', desc: 'Tighten overall vertical margins and padding', text: 'Make layout more compact', shortcut: '/compact' },
+    { title: 'Enlarge Text', desc: 'Increase body font sizing for accessibility', text: 'Enlarge body text slightly', shortcut: '/larger' },
+    { title: 'Signature Block', desc: 'Insert an elegant signed-by signature line', text: 'Add a signed-by signature line at the bottom', shortcut: '/sign' }
+  ]
+})
+
+const applySpotlightCommand = (cmdText: string) => {
+  chatInput.value = cmdText
+  submitSpotlightPrompt()
+}
+
+const submitSpotlightPrompt = () => {
+  showSpotlightModal.value = false
+  refineJob()
+}
+
+const applyFloatingPill = (pillText: string) => {
+  chatInput.value = pillText
+  refineJob()
+}
+
+const triggerSpotlightForRegion = (regionId: string) => {
+  selectedRegionId.value = regionId
+  showSpotlightModal.value = true
+  nextTick(() => {
+    spotlightInputRef.value?.focus()
+  })
+}
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault()
+    if (selectedJobName.value) {
+      showSpotlightModal.value = !showSpotlightModal.value
+      if (showSpotlightModal.value) {
+        nextTick(() => {
+          spotlightInputRef.value?.focus()
+        })
+      }
+    }
+  }
+}
+
 onMounted(() => {
   loadJobsList()
   loadActiveSettings()
   listPrintFormatsResource.fetch()
+  window.addEventListener('keydown', handleKeyDown)
 })
 
 const saveSettings = async (formData: any) => {
@@ -619,6 +762,7 @@ onBeforeUnmount(() => {
     clearInterval(interval)
   }
   activeIntervals.clear()
+  window.removeEventListener('keydown', handleKeyDown)
 })
 
 const openJob = async (jobName: string) => {
@@ -690,8 +834,8 @@ const refineJob = async () => {
 <style scoped>
 /* Main studio layout classes */
 .print-studio-container {
-  background-color: #111315 !important;
-  color: #F2F3F5 !important;
+  background-color: #EFECE6 !important;
+  color: #2A2B2A !important;
 }
 
 /* Rounded and typography configurations */
@@ -704,15 +848,15 @@ const refineJob = async () => {
 .print-studio-container input[type="password"],
 .print-studio-container input[type="text"],
 .print-studio-container textarea {
-  background-color: #17191C !important;
-  color: #F2F3F5 !important;
-  border: 1px solid #2A2E33 !important;
+  background-color: #FFFFFF !important;
+  color: #2A2B2A !important;
+  border: 1px solid #D1CDC7 !important;
 }
 .print-studio-container select:focus,
 .print-studio-container input:focus,
 .print-studio-container textarea:focus {
-  border-color: #38C8B0 !important;
-  box-shadow: 0 0 0 1px rgba(56, 200, 176, 0.25) !important;
-  background-color: #17191C !important;
+  border-color: #F0533A !important;
+  box-shadow: 0 0 0 1px rgba(240, 83, 58, 0.25) !important;
+  background-color: #FFFFFF !important;
 }
 </style>
